@@ -3,7 +3,7 @@ import { type LoaderArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { formatDate } from "~/utils";
 import { urlFor } from "~/utils/image";
-import { getPost } from "~/utils/sanity";
+import { getPost, Post } from "~/utils/sanity";
 import { useLiveData } from "~/hooks/useLiveData";
 
 export const loader = async ({ params }: LoaderArgs) => {
@@ -11,7 +11,7 @@ export const loader = async ({ params }: LoaderArgs) => {
 };
 
 export default function PostRoute() {
-  const post = useLiveData(useLoaderData<typeof loader>());
+  const post = useLiveData<Post>(useLoaderData<typeof loader>());
 
   return (
     <section className="post">

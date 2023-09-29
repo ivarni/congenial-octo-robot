@@ -1,22 +1,32 @@
-import { client, Post } from "~/utils/sanity";
+import { client } from "~/utils/sanity";
 import { useEffect, useState } from "react";
+import { Slug } from "@sanity/types";
 
-export function useLiveData(post: Post) {
-  const [result, setResult] = useState(post);
+export function useLiveData<T extends { slug: Slug; _type: string }>(
+  document: T,
+) {
+  const [result, setResult] = useState<T>(document);
 
   useEffect(() => {
-    const subscription = client
-      .listen<Post>('*[_type == "post" && slug.current == $slug][0]', {
-        slug: post.slug,
-      })
-      .subscribe((update) => {
-        if (update.type === "mutation") {
-          setResult(update.result as Post);
-        }
-      });
+    if (process.env.NODE_ENV === "production") {
+      return () => {};
+    } else {
+      const subscription = client
+        .listen<T>(
+          `*[_type == "${document._type}" && slug.current == $slug][0]`,
+          {
+            slug: document.slug.current,
+          },
+        )
+        .subscribe((update) => {
+          if (update.type === "mutation" && update.result !== undefined) {
+            setResult(update.result);
+          }
+        });
 
-    return () => subscription.unsubscribe();
-  }, [post.slug]);
+      return () => subscription.unsubscribe();
+    }
+  }, [document.slug]);
 
   return result;
 }
