@@ -1,6 +1,4 @@
 import { useLoaderData, type V2_MetaFunction } from "@remix-run/react";
-import Card from "~/components/Card";
-import Welcome from "~/components/Welcome";
 import { getPosts } from "~/utils/sanity";
 
 export const meta: V2_MetaFunction = () => {
@@ -17,15 +15,16 @@ export default function Index() {
 
   return (
     <section>
-      {posts.length ? (
-        posts.map((post) => (
-          <Card
-            key={post.title}
-            post={post}
-          />
-        ))
-      ) : (
-        <Welcome />
+      {posts.length && (
+        <ul>
+          {posts.map((post) => (
+            <li key={post.slug.current}>
+              <a className="card__link" href={`/post/${post.slug.current}`}>
+                {post.title}
+              </a>
+            </li>
+          ))}
+        </ul>
       )}
     </section>
   );

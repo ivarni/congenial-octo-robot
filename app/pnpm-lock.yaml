@@ -8,6 +8,9 @@ dependencies:
   '@portabletext/react':
     specifier: ^3.0.0
     version: 3.0.9(react@18.2.0)
+  '@remix-run/css-bundle':
+    specifier: ^1.15.0
+    version: 1.19.3
   '@remix-run/node':
     specifier: ^1.15.0
     version: 1.19.3
@@ -1930,6 +1933,11 @@ packages:
   /@portabletext/types@2.0.7:
     resolution: {integrity: sha512-kWjS2lguGKHYDsHeK83cXonuYQCIP4mfNwnTjCdDpIPf7CQ4eTuKjYKxJ2w2aksbsh1DwSk1h+xZ64ADiNdTGg==}
     engines: {node: ^14.13.1 || >=16.0.0 || >=18.0.0}
+    dev: false
+
+  /@remix-run/css-bundle@1.19.3:
+    resolution: {integrity: sha512-XccfuPmTdtXT+Kx7Df62cyk8d2I6DrHIB02uDyIGOTq8lPlMXznErMW14asVcbGOV5ieAOvnch/pUJrsKoWRmw==}
+    engines: {node: '>=14.0.0'}
     dev: false
 
   /@remix-run/dev@1.19.3(@remix-run/serve@1.19.3)(@types/node@18.18.0):

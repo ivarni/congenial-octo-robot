@@ -1,5 +1,5 @@
 import { type LinksFunction, json } from "@remix-run/node";
-import styles from "./styles/index.css";
+import { cssBundleHref } from "@remix-run/css-bundle";
 import {
   Links,
   LiveReload,
@@ -9,6 +9,7 @@ import {
   ScrollRestoration,
   useLoaderData,
 } from "@remix-run/react";
+import styles from "./root.module.css";
 
 export const loader = () => {
   return json({
@@ -21,7 +22,7 @@ export const loader = () => {
 
 export const links: LinksFunction = () => {
   return [
-    { rel: "stylesheet", href: styles },
+    { rel: "stylesheet", href: cssBundleHref },
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
     { rel: "preconnect", href: "https://fonts.gstatic.com" },
     {
@@ -35,31 +36,25 @@ export default function App() {
   const { ENV } = useLoaderData<typeof loader>();
 
   return (
-    <html lang="en">
+    <html lang="en" className={styles.app}>
       <head>
         <meta charSet="utf-8" />
-        <meta
-          name="viewport"
-          content="width=device-width,initial-scale=1"
-        />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Meta />
         <Links />
       </head>
       <body>
-        <div className="container">
-          <header className="header">
-            <a
-              className="header__title"
-              href="/"
-            >
+        <div className={styles.container}>
+          <header className={styles.header}>
+            <a className={styles.header__title} href="/">
               Remix + Sanity
             </a>
           </header>
           <main>
             <Outlet />
           </main>
-          <footer className="footer">
-            <p className="footer__text">
+          <footer className={styles.footer}>
+            <p className={styles.footer__text}>
               Made with{" "}
               <svg
                 datasanity-icon="heart-filled"
