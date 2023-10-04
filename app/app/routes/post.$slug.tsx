@@ -1,15 +1,27 @@
 import { type LoaderArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getPost, Post } from "~/utils/sanity";
-import { useLiveData } from "~/hooks/useLiveData";
+import { Post, sanityFetch } from "~/utils/sanity";
 import { PostPage } from "~/pages/PostPage";
+import groq from "groq";
+import { useLiveQuery } from "@sanity/preview-kit";
+
+export const postQuery = groq`*[_type == "post" && slug.current == $slug][0]`;
 
 export const loader = async ({ params }: LoaderArgs) => {
-  return await getPost(params.slug as string);
+  const post = await sanityFetch<Post>({
+    query: postQuery,
+    params,
+  });
+
+  return {
+    post,
+    params,
+  };
 };
 
 export default function PostRoute() {
-  const post = useLiveData<Post>(useLoaderData<typeof loader>());
+  const { post: initialPost, params } = useLoaderData<typeof loader>();
+  const [post] = useLiveQuery(initialPost, postQuery, params);
 
   return <PostPage post={post} />;
 }

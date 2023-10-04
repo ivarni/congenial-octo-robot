@@ -10,13 +10,27 @@ import {
   useLoaderData,
 } from "@remix-run/react";
 import styles from "./root.module.css";
+import { lazy, Suspense } from "react";
+import * as process from "process";
+import { getSession } from "~/utils/session";
+import { LoaderArgs } from "@remix-run/server-runtime";
 
-export const loader = () => {
+const PreviewProvider = lazy(() => import("~/preview/PreviewProvider"));
+
+export const loader = async ({ request }: LoaderArgs) => {
+  const session = await getSession(request.headers.get("Cookie"));
+  const token = session.get("preview");
+  const previewDrafts = !!token;
+
+  console.log({ previewDrafts, token });
+
   return json({
     ENV: {
       SANITY_PROJECT_ID: process.env.SANITY_PROJECT_ID,
       SANITY_DATASET: process.env.SANITY_DATASET,
     },
+    previewDrafts,
+    token,
   });
 };
 
@@ -33,7 +47,9 @@ export const links: LinksFunction = () => {
 };
 
 export default function App() {
-  const { ENV } = useLoaderData<typeof loader>();
+  const { ENV, previewDrafts, token } = useLoaderData<typeof loader>();
+
+  const children = <Outlet />;
 
   return (
     <html lang="en" className={styles.app}>
@@ -51,7 +67,13 @@ export default function App() {
             </a>
           </header>
           <main>
-            <Outlet />
+            {previewDrafts ? (
+              <Suspense fallback={children}>
+                <PreviewProvider token={token}>{children}</PreviewProvider>
+              </Suspense>
+            ) : (
+              children
+            )}
           </main>
           <footer className={styles.footer}>
             <p className={styles.footer__text}>
