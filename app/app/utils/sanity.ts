@@ -1,4 +1,4 @@
-import { createClient } from "@sanity/client";
+import { createClient, SanityClient } from "@sanity/client";
 import type { PortableTextBlock } from "@portabletext/types";
 import type { ImageAsset, Slug } from "@sanity/types";
 import groq from "groq";
@@ -24,20 +24,41 @@ export const client = createClient({
   dataset: SANITY_DATASET,
   useCdn: false, // `false` if you want to ensure fresh data
   apiVersion: "2023-03-20", // date of setup
+  perspective: "published",
 });
 
-export async function getPosts(): Promise<Post[]> {
-  return await client.fetch(
-    groq`*[_type == "post" && defined(slug.current)] | order(_createdAt desc)`
+export function getClient(preview?: { token: string }): SanityClient {
+  if (!preview) {
+    return client;
+  }
+  if (!preview.token) {
+    throw new Error(
+      "Attempted to activate Preview but a token was not provided",
+    );
+  }
+  return client.withConfig({
+    token: preview.token,
+    useCdn: false,
+    ignoreBrowserTokenWarning: true,
+    perspective: "previewDrafts",
+  });
+}
+
+export async function getPosts(prevew?: { token: string }): Promise<Post[]> {
+  return await getClient(prevew).fetch(
+    groq`*[_type == "post" && defined(slug.current)] | order(_createdAt desc)`,
   );
 }
 
-export async function getPost(slug: string): Promise<Post> {
-  return await client.fetch(
+export async function getPost(
+  slug: string,
+  preview?: { token: string },
+): Promise<Post> {
+  return await getClient(preview).fetch(
     groq`*[_type == "post" && slug.current == $slug][0]`,
     {
       slug,
-    }
+    },
   );
 }
 
